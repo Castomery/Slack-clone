@@ -8,9 +8,6 @@ import { functions, inngest } from './configs/inngest.js';
 import { serve } from "inngest/express";
 
 const app = express();
-const PORT = ENV.PORT; 
-
-connectDB();
 
 app.use(clerkMiddleware());
 app.use(express.json());
@@ -22,6 +19,8 @@ app.get('/', (req,res) => res.send("Api is working"));
 
 const startServer = async() =>{
     try {
+        await connectDB();
+
         if(ENV.NODE_ENV !== "production"){
             app.listen(ENV.PORT, ()=> {
                 console.log("Server started on port:", ENV.PORT);
