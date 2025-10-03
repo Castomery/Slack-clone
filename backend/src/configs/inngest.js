@@ -1,6 +1,7 @@
 import { Inngest } from "inngest";
 import { connectDB } from "./mongoDB.js";
 import { UserModel } from "../models/user.model.js";
+import { deleteStreamUser, upsertStreamUser } from "./stream.js";
 
 
 export const inngest = new Inngest({ id: "slack-clone" });
@@ -20,6 +21,12 @@ const syncUser = inngest.createFunction(
         }
 
         await UserModel.create(newUser);
+
+        await upsertStreamUser({
+            id:newUser.clerkId.toString(),
+            name: newUser.name,
+            image: newUser.image,
+        })
     } 
 )
 
@@ -30,6 +37,8 @@ const deleteUserFromDB = inngest.createFunction(
         await connectDB()
         const {id} = event.data;
         await UserModel.deleteOne({clerkId:id});
+
+        await deleteStreamUser(id.toString())
     }
 ) 
 
