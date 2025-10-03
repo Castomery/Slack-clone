@@ -1,22 +1,57 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import {BrowserRouter} from 'react-router';
-import './index.css';
-import App from './App.jsx';
-import { ClerkProvider } from '@clerk/clerk-react';
+import { StrictMode, useEffect } from "react";
+import { createRoot } from "react-dom/client";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  useLocation,
+  useNavigationType,
+  createRoutesFromChildren,
+  matchRoutes,
+} from "react-router";
+import "./index.css";
+import App from "./App.jsx";
+import { ClerkProvider } from "@clerk/clerk-react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
+import AuthProvider from "./providers/AuthProvider.jsx";
+import * as Sentry from "@sentry/react";
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
-  throw new Error('Missing Publishable Key')
+  throw new Error("Missing Publishable Key");
 }
 
-createRoot(document.getElementById('root')).render(
+
+Sentry.init({
+  dsn: "https://1ebeb59d78f16117d0dbcea9bb9d10f6@o4510119579549696.ingest.de.sentry.io/4510126097498192",
+  integrations: [
+    Sentry.reactRouterV7BrowserTracingIntegration({
+      useEffect: useEffect,
+      useLocation,
+      useNavigationType,
+      createRoutesFromChildren,
+      matchRoutes,
+    }),
+  ],
+  tracesSampleRate: 1.0,
+});
+
+
+const queryClient = new QueryClient();
+
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <BrowserRouter>
-        <App />
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+          <Toaster position="top-right" />
+        </QueryClientProvider>
       </BrowserRouter>
-      </ClerkProvider>
-  </StrictMode>,
-)
+    </ClerkProvider>
+  </StrictMode>
+);
