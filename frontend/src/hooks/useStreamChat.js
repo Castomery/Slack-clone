@@ -20,6 +20,8 @@ export const useStreamChat = () => {
     );
 
     useEffect(() => {
+        let cancelled = false;
+
         const initChat = async() => {
             if(!tokenData?.token || !user) return;
 
@@ -31,7 +33,7 @@ export const useStreamChat = () => {
                     image:user.imageUrl,
                 })
 
-                setChatClient(client);
+                if(!cancelled) setChatClient(client);
             } catch (error) {
                 console.log("Error:", error);
                 Sentry.captureException(error, {
@@ -43,9 +45,10 @@ export const useStreamChat = () => {
         initChat();
 
         return () => {
-            if(chatClient) chatClient.disconnectUser();
+            cancelled = true;
+            chatClient.disconnectUser();
         }
-    },[tokenData, user, chatClient]);
+    },[tokenData?.token, user?.id]);
 
     return {chatClient, isLoading:tokenLoading, error: tokenError}
 }
