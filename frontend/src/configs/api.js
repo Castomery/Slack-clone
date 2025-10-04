@@ -6,5 +6,6 @@ export async function getStreamToken() {
     return res.data;
   } catch (error) {
     console.log("Error:", error);
+    throw error;
   }
 }
