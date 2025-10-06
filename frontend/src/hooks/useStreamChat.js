@@ -63,7 +63,6 @@ export const useStreamChat = () => {
 
     connect();
 
-    // cleanup
     return () => {
       cancelled = true;
       client.disconnectUser();
