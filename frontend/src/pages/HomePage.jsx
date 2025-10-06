@@ -38,7 +38,7 @@ const HomePage = () => {
   }, [chatClient, searchParams]);
 
   if(error) return <p>Something went wrong...</p>
-  if(isLoading || !chatClient || !chatClient.user) return <PageLoader/>
+  if(isLoading || !chatClient || !chatClient?.user) return <PageLoader/>
 
   return (
     <div className='chat-wrapper'>
